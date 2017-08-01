@@ -24,12 +24,37 @@ describe('The program', () => {
     expect(colorizeGeometry).toBeDefined();
   });
 
-  it('has a getReduction() function', () => {
-    expect(getReduction).toBeDefined();
+  describe('has a getReduction() function', () => {
+
+    it('that is defined', () => {
+      expect(getReduction).toBeDefined();
+    });
+
+    it('that works with degrees', () => {
+
+      expect(getReduction({angle: 45, height: 10})).toBeTruthy();
+      expect(() => {getReduction({angle: 90, height: 10});}).toThrow();
+
+      expect(getReduction({angle: 10, height:10}) > getReduction({ angle:5 , height: 10})).toBe(true);
+    });
+
+    it('that works with side ratios', () => {
+
+      expect(getReduction({hypot: 15, height:10 })).toBeTruthy();
+      expect(()=>{getReduction({hypot: 0.2, height: 10});}).toThrow();
+
+      expect(getReduction({hypot: 10, height:10}) < getReduction({ hypot:5 , height: 10})).toBe(true);
+    });
+
+    it('can be used interchangeably', () => {
+      var degrees = (Math.asin(1/8)/Math.PI *180);
+      expect(getReduction({angle: degrees,height:10})).toBeCloseTo(getReduction({hypot: 8,height:10}),8); 
+    });
+
   });
 
   describe('has a valid scene', () => {
-    it('the scene object is an instance of THREE.Scene', () => {
+    it('that is an instance of THREE.Scene', () => {
       expect(scene instanceof THREE.Scene).toBe(true);
     });
   });
@@ -37,27 +62,36 @@ describe('The program', () => {
   describe('has a PlankGroup constructor', () => {
     var plankGroup;
 
-    it('is defined', () => {
+    it('that is defined', () => {
       expect(PlankGroup).toBeDefined();
     });
 
-    it('can be instanced', () => {
+    it('that can be instanced', () => {
       expect( plankGroup = new PlankGroup({x: 10, y: 10, z: 10}) ).toBeTruthy();
     });
 
-    describe('instances', () => {
+    describe('whose instances', () => {
 
-      it('have a buildJoin() method', () => {
-        expect(plankGroup.buildJoin).toBeDefined();
+      describe('have a buildJoin() method', () => {
+        it('that is defined', () => {
+         expect(plankGroup.buildJoin).toBeDefined();
+        });
+
+        it('that returns a join', () => {
+          join = plankGroup.buildJoin(10,10,10);
+          expect(join instanceof THREE.Mesh).toBe(true);
+          expect(join.geometry instanceof THREE.Geometry).toBe(true);
+          expect(join.material instanceof THREE.Material).toBe(true);
+        });
       });
 
       describe('have an addJoin() method', () => {
 
-        it('is defined', () => {
+        it('that is defined', () => {
           expect(plankGroup.addJoin).toBeDefined();
         });
 
-        it('adds a Join', () => {
+        it('that adds a Join', () => {
           var initial = plankGroup.joins.children.length;
           plankGroup.addJoin(10,10,10,-2);
 
