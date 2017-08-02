@@ -36,7 +36,7 @@
   z-index: 1;
   position: absolute;
   bottom: 0px;
-  width: 28em;
+  width: 32em;
   display: flex;
   flex-flow: row wrap;
   justify-content: space-around;
@@ -70,7 +70,7 @@
 
 .input-group{
   display: flex;
-  width: 6em;
+  width: 7em;
   .addon{
     box-sizing: border-box;
     padding: 0.5em 0.7em;
@@ -88,7 +88,7 @@
   }
 
   input{
-    width: 3em;
+    width: 4em;
     &:last-child{
       border-left-width: 0;
       border-top-left-radius: 0;
