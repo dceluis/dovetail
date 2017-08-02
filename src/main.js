@@ -41,9 +41,9 @@ var PlankGroup = function PlankGroup(options,number,alternative) {
   // this.add( this.lines );
   this.add( this.joins );
 
-  this.addJoin = function addJoin(top,bottom,height,positionZ){
+  this.addJoin = function addJoin(top,bottom,height,width,positionZ){
 
-    var join = this.buildJoin(top,bottom,height);
+    var join = this.buildJoin(top,bottom,height,width);
 
     join.position.z = positionZ;
 
@@ -51,10 +51,9 @@ var PlankGroup = function PlankGroup(options,number,alternative) {
     return join;
   };
 
-  this.buildJoin = function buildJoin(top,bottom,height){
-    var _width = this.plank.geometry.parameters.width * (this.alternative ? 1 : 2 );
+  this.buildJoin = function buildJoin(top,bottom,height,width){
     var material = this.material;
-    var geometry = new THREE.BoxGeometry(_width/2,height,top);
+    var geometry = new THREE.BoxGeometry(width,height,top);
         geometry = colorizeGeometry( geometry,this.alternative);
 
     var reduction = (top - bottom) / 2;
@@ -104,7 +103,7 @@ function init () {
 
   buildInputs();
 
-  buildScene(4,15,3);
+  buildScene(2,4,4,15,3);
 
   var animate = function() {
     requestAnimationFrame(animate);
@@ -155,12 +154,13 @@ function buildInputs(){
     var number = parseInt(document.getElementById("number").value);
     var angle  = parseInt(document.getElementById("angle").value);
     var length = parseFloat(document.getElementById("length").value);
-    console.log(length);
-    buildScene(number || 4 ,angle || 15 ,length || 3);
+    var aWidth = parseFloat(document.getElementById("aWidth").value);
+    var bWidth = parseFloat(document.getElementById("bWidth").value);
+    buildScene(aWidth || 2, bWidth || 4,number || 4 ,angle || 15 ,length || 3);
   });
 }
 
-function buildScene(number,angle,top){
+function buildScene(aWidth,bWidth,number,angle,top){
   scene = new THREE.Scene();
 
   var ambient = new THREE.AmbientLight( 0x404040 ); // soft white light
@@ -176,16 +176,15 @@ function buildScene(number,angle,top){
   light2.castShadow = true;
   scene.add( light2 );
 
-  var plank1 = new PlankGroup({x: 2, y: 10, z: 24},number);
-  var plank2 = new PlankGroup({x: 4, y: 10, z: 24},number+1,true);
+  var planka = new PlankGroup({x: aWidth, y: 10, z: 24},number);
+  var plankb = new PlankGroup({x: bWidth, y: 10, z: 24},number+1,true);
 
-  generateDove(plank1,plank2,angle,top);
-  positionJoins(plank1);
-  positionJoins(plank2);
-  positionPlanks(plank1,plank2);
+  generateDove(planka,plankb,angle,top);
+  positionJoins(planka,plankb);
+  positionPlanks(planka,plankb);
 
-  scene.add(plank1);
-  scene.add(plank2);
+  scene.add(planka);
+  scene.add(plankb);
 
   turnToFace("left");
 }
@@ -211,9 +210,9 @@ function generateDove(planka,plankb,angle,top){
 
   for( var i = 0 ; i  < planka.number + plankb.number ; i++ ){
     if(i%2 === 0) 
-      plankb.addJoin(top + diff,bot + diff,joinHeight,nextPosition);
+      plankb.addJoin(top + diff,bot + diff,joinHeight,plankaParams.width,nextPosition);
     else
-      planka.addJoin(top,bot,joinHeight,nextPosition);
+      planka.addJoin(top,bot,joinHeight,plankaParams.width, nextPosition);
 
     nextPosition += altJoinTop/2 + bot/2;
   }
@@ -258,13 +257,14 @@ function turnToFace(face){
   }
 }
 
-function positionJoins(plank){
-  var plankParams = plank.plank.geometry.parameters;
+function positionJoins(planka,plankb){
+  var plankaParams = planka.plank.geometry.parameters;
+  var plankbParams = plankb.plank.geometry.parameters;
 
-  if(plank.alternative)
-    plank.joins.rotateZ(Math.PI/2);
+  plankb.joins.rotateZ(Math.PI/2);
 
-  plank.joins.position.y = plankParams.height/2 + plankParams.width / (plank.alternative ? 4 : 1);
+  planka.joins.position.y = plankaParams.height/2 + plankbParams.width/2;
+  plankb.joins.position.y = plankbParams.height/2 + plankaParams.width/2;
 }
 
 function positionPlanks(planka,plankb){
