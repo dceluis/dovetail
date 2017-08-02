@@ -46,7 +46,7 @@ describe('The program', () => {
       expect(getReduction({hypot: 10, height:10}) < getReduction({ hypot:5 , height: 10})).toBe(true);
     });
 
-    it('can be used interchangeably', () => {
+    it('that can be used interchangeably', () => {
       var degrees = (Math.asin(1/8)/Math.PI *180);
       expect(getReduction({angle: degrees,height:10})).toBeCloseTo(getReduction({hypot: 8,height:10}),8); 
     });
@@ -68,6 +68,10 @@ describe('The program', () => {
 
     it('that can be instanced', () => {
       expect( plankGroup = new PlankGroup({x: 10, y: 10, z: 10}) ).toBeTruthy();
+      expect( plankGroup instanceof PlankGroup).toBeTruthy();
+      expect( plankGroup.plank instanceof THREE.Mesh).toBeTruthy();
+      expect( plankGroup.joins instanceof THREE.Group).toBeTruthy();
+      expect( plankGroup.geometry instanceof THREE.BoxGeometry).toBeTruthy();
     });
 
     describe('whose instances', () => {
@@ -86,6 +90,9 @@ describe('The program', () => {
       });
 
       describe('have an addJoin() method', () => {
+        beforeAll(() => {
+           spyOn(plankGroup, 'buildJoin').and.callThrough();
+        });
 
         it('that is defined', () => {
           expect(plankGroup.addJoin).toBeDefined();
@@ -95,6 +102,7 @@ describe('The program', () => {
           var initial = plankGroup.joins.children.length;
           plankGroup.addJoin(10,10,10,-2);
 
+          expect(plankGroup.buildJoin).toHaveBeenCalled();
           expect(plankGroup.joins.children.length).toEqual(initial+1);
         });
 

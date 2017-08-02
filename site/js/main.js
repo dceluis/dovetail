@@ -20,7 +20,7 @@ function init() {
     (controls = new THREE.TrackballControls(camera, renderer.domElement)).rotateSpeed = 1.5, 
     controls.noZoom = !1, controls.noPan = !1;
     var t = new Stats();
-    document.getElementById("play-box").appendChild(t.dom), buildInputs(), buildScene(4, 75, 3);
+    document.getElementById("play-box").appendChild(t.dom), buildInputs(), buildScene(4, 15, 3);
     var n = function() {
         requestAnimationFrame(n), e(), t.update();
     };
@@ -30,7 +30,7 @@ function init() {
 function buildInputs() {
     document.getElementById("create").addEventListener("click", function() {
         var e = parseInt(document.getElementById("number").value), t = parseInt(document.getElementById("angle").value), n = parseFloat(document.getElementById("length").value);
-        console.log(n), buildScene(e || 4, t || 75, n || 3);
+        console.log(n), buildScene(e || 4, t || 15, n || 3);
     });
 }
 
@@ -42,11 +42,11 @@ function buildScene(e, t, n) {
     r.position.set(-10, 9, 6), r.castShadow = !0, scene.add(r);
     var o = new THREE.DirectionalLight(16777215, .6);
     o.position.set(10, -6, -7), o.castShadow = !0, scene.add(o);
-    var i = buildPlank({
+    var i = new PlankGroup({
         x: 2,
         y: 10,
         z: 24
-    }), s = buildPlank({
+    }), s = new PlankGroup({
         x: 4,
         y: 10,
         z: 24
@@ -56,8 +56,11 @@ function buildScene(e, t, n) {
 }
 
 function generateDove(e, t, n, a) {
-    for (var r = e.plank.geometry.parameters, o = r.width * (e.alternative ? 1 : 2), i = a || o, s = i - 2 * getReduction(n, o), c = i - s, l = (r.depth - s * (t - (e.alternative ? 1 : 0))) / (t + (e.alternative ? 0 : 1)), d = i - l, p = -r.depth / 2 + l / 2 + (l + s) * (e.alternative ? 0 : .5), m = 0; m < t; m++) e.alternative ? e.addJoin(i - d, s - d, o, p) : e.addJoin(i, s, o, p), 
-    p += l + s;
+    for (var r = e.plank.geometry.parameters, o = r.width * (e.alternative ? 1 : 2), i = a || o, s = i - 2 * getReduction({
+        angle: n,
+        height: o
+    }), c = i - s, l = (r.depth - s * (t - (e.alternative ? 1 : 0))) / (t + (e.alternative ? 0 : 1)), p = i - l, d = -r.depth / 2 + l / 2 + (l + s) * (e.alternative ? 0 : .5), m = 0; m < t; m++) e.alternative ? e.addJoin(i - p, s - p, o, d) : e.addJoin(i, s, o, d), 
+    d += l + s;
     e.alternative && (e.joins.children[0].geometry.vertices[3].z -= c / 2, e.joins.children[0].geometry.vertices[6].z -= c / 2, 
     e.joins.children[e.joins.children.length - 1].geometry.vertices[2].z += c / 2, e.joins.children[e.joins.children.length - 1].geometry.vertices[7].z += c / 2);
 }
@@ -98,22 +101,6 @@ function turnToFace(e) {
     tempObject3D.steps.z = (tempObject3D.rotation.z - scene.rotation.z) / 30;
 }
 
-function getMaterial() {
-    return new THREE.MeshLambertMaterial({
-        vertexColors: THREE.FaceColors,
-        overdraw: .5,
-        transparent: !1,
-        opacity: 1
-    });
-}
-
-function buildPlank(e, t) {
-    var n = new PlankGroup(), a = getMaterial(), r = colorizeGeometry(new THREE.BoxGeometry(e.x, e.y, e.z), t);
-    return n.plank = new THREE.Mesh(r, a), n.plank.castShadow = !0, n.lines = new THREE.LineSegments(new THREE.WireframeGeometry(r)), 
-    n.lines.material.opacity = .2, n.lines.material.transparent = !0, n.alternative = !!t, 
-    n.add(n.plank), n.add(n.joins), n;
-}
-
 function positionJoins(e) {
     var t = e.plank.geometry.parameters;
     e.alternative && e.joins.rotateZ(Math.PI / 2), e.joins.position.y = t.height / 2 + t.width / (e.alternative ? 4 : 1);
@@ -124,24 +111,33 @@ function positionPlanks(e, t) {
     t.rotateZ(Math.PI / 2), t.translateX((e.plank.geometry.parameters.height + t.plank.geometry.parameters.width) / 2);
 }
 
-function getReduction(e, t) {
-    var n = Math.PI * e / 180;
-    return Math.tan(Math.PI / 2 - n) * t;
+function getReduction(e) {
+    if (e.angle > 0 && e.angle < 90) t = Math.PI * e.angle / 180; else {
+        if (!(e.hypot > 1)) throw new Error("Invalid angle or hypothenuse input");
+        var t = Math.asin(1 / e.hypot);
+    }
+    return Math.tan(t) * e.height;
 }
-
-document.addEventListener("DOMContentLoaded", init);
 
 var renderer, tempObject3D, scene = new THREE.Scene(), camera = new THREE.PerspectiveCamera(30, 1, 1, 5e3);
 
 camera.position.x = 0, camera.position.y = 0, camera.position.z = 70;
 
-var controls, PlankGroup = function() {
+var controls, PlankGroup = function(e, t) {
     THREE.Object3D.call(this), this.type = "Group", this.plank = new THREE.Mesh(), this.lines = new THREE.WireframeGeometry(), 
-    this.joins = new THREE.Group(), this.addJoin = function(e, t, n, a) {
+    this.joins = new THREE.Group(), this.material = new THREE.MeshLambertMaterial({
+        vertexColors: THREE.FaceColors,
+        overdraw: .5,
+        transparent: !1,
+        opacity: 1
+    }), this.geometry = colorizeGeometry(new THREE.BoxGeometry(e.x, e.y, e.z), t), this.plank = new THREE.Mesh(this.geometry, this.material), 
+    this.plank.castShadow = !0, this.lines = new THREE.LineSegments(new THREE.WireframeGeometry(this.geometry)), 
+    this.lines.material.opacity = .2, this.lines.material.transparent = !0, this.alternative = !!t, 
+    this.add(this.plank), this.add(this.joins), this.addJoin = function(e, t, n, a) {
         var r = this.buildJoin(e, t, n);
         return r.position.z = a, this.joins.add(r), r;
     }, this.buildJoin = function(e, t, n) {
-        var a = this.plank.geometry.parameters.width * (this.alternative ? 1 : 2), r = getMaterial(), o = new THREE.BoxGeometry(a / 2, n, e), i = (e - t) / 2;
+        var a = this.plank.geometry.parameters.width * (this.alternative ? 1 : 2), r = this.material, o = new THREE.BoxGeometry(a / 2, n, e), i = (e - t) / 2;
         return (o = colorizeGeometry(o, this.alternative)).vertices[2].add({
             x: 0,
             y: 0,
