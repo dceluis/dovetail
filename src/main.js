@@ -4,6 +4,10 @@ var tempObject3D;
 
 var scene = new THREE.Scene();
 
+var raycaster = new THREE.Raycaster();
+var mouse = new THREE.Vector2(),INTERSECTED;
+var intersects;
+
 var camera = new THREE.PerspectiveCamera(30, 1, 1, 5000);
     camera.position.x = 0;
     camera.position.y = 0;
@@ -85,7 +89,7 @@ function init () {
 
   // var updateInfo = build_updateInfo();
 
-  renderer = new THREE.WebGLRenderer();
+  renderer = new THREE.WebGLRenderer({antialias: true});
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
   renderer.setSize(500, 500);
@@ -100,6 +104,13 @@ function init () {
   var stats = new Stats();
   document.getElementById("play-box").appendChild( stats.dom );
 
+  renderer.domElement.addEventListener( 'mousemove', onDocumentMouseMove, false );
+
+  function onDocumentMouseMove( event ) {
+    event.preventDefault();
+    mouse.x = ( event.offsetX / renderer.domElement.clientWidth ) * 2 - 1;
+    mouse.y = - ( event.offsetY / renderer.domElement.clientHeight ) * 2 + 1;
+  }
 
   buildInputs();
 
@@ -142,6 +153,22 @@ function init () {
         tempObject3D = undefined;
       }
     }
+
+    raycaster.setFromCamera( mouse, camera );
+    intersects = raycaster.intersectObjects( [ scene.children[3].joins.children[0] ] );
+
+    if ( intersects.length > 0 ) {
+      if ( INTERSECTED != intersects[ 0 ].object ) {
+        if ( INTERSECTED ) INTERSECTED.material.emissive.setHex( INTERSECTED.currentHex );
+        INTERSECTED = intersects[ 0 ].object;
+        INTERSECTED.currentHex = INTERSECTED.material.emissive.getHex();
+        INTERSECTED.material.emissive.setHex( 0x111111 );
+      }
+    } else {
+      if ( INTERSECTED ) INTERSECTED.material.emissive.setHex( INTERSECTED.currentHex );
+      INTERSECTED = null;
+    }
+
     // actually render the scene
     renderer.render( scene, camera );
   }
@@ -185,6 +212,49 @@ function buildScene(aWidth,bWidth,number,angle,top){
 
   scene.add(planka);
   scene.add(plankb);
+
+  var loader = new THREE.FontLoader();
+  loader.load( 'font/Lato_Regular.json', function ( font ) {
+    var xMid, text;
+    var color = 0xffffff;
+    var matDark = new THREE.LineBasicMaterial( {
+      color: color,
+      side: THREE.DoubleSide
+    } );
+    var matLite = new THREE.MeshBasicMaterial( {
+      color: color,
+      transparent: true,
+      opacity: 0.8,
+      side: THREE.DoubleSide
+    } );
+    var message = top + "cm";
+    var shapes = font.generateShapes( message, 0.5);
+    var geometry = new THREE.ShapeGeometry( shapes );
+    // make shape ( N.B. edge view not visible )
+    text = new THREE.Mesh( geometry, matLite );
+    text.position.x = -3;
+    planka.joins.children[0].add( text );
+    // make line shape ( N.B. edge view remains visible )
+    // var holeShapes = [];
+    // for ( var i = 0; i < shapes.length; i ++ ) {
+    //   var shape = shapes[ i ];
+    //   if ( shape.holes && shape.holes.length > 0 ) {
+    //     for ( var j = 0; j < shape.holes.length; j ++ ) {
+    //       var hole = shape.holes[ j ];
+    //       holeShapes.push( hole );
+    //     }
+    //   }
+    // }
+    // shapes.push.apply( shapes, holeShapes );
+    // var lineText = new THREE.Object3D();
+    // for ( var i = 0; i < shapes.length; i ++ ) {
+    //   var shape = shapes[ i ];
+    //   var lineGeometry = shape.createPointsGeometry();
+    //   var lineMesh = new THREE.Line( lineGeometry, matDark );
+    //   lineText.add( lineMesh );
+    // }
+    // scene.add( lineText );
+  } ); //end load function
 
   turnToFace("left");
 }
@@ -275,7 +345,7 @@ function positionPlanks(planka,plankb){
 
 function getReduction(options){
   if( options.angle > 0 && options.angle < 90 ){
-    var radiansAngle = Math.PI * options.angle / 180;
+    var radiansAngle = THREE.Math.degToRad(options.angle);
     
   }
   else if ( options.hypot > 1 ){

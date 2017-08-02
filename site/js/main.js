@@ -7,24 +7,35 @@ function colorizeGeometry(e, t) {
 }
 
 function init() {
-    function e() {
+    function e(e) {
+        e.preventDefault(), mouse.x = e.offsetX / renderer.domElement.clientWidth * 2 - 1, 
+        mouse.y = -e.offsetY / renderer.domElement.clientHeight * 2 + 1;
+    }
+    function t() {
         controls.update();
         var e = 0;
         tempObject3D && (Math.abs(tempObject3D.rotation.x - scene.rotation.x) > .05 ? scene.rotation.x += tempObject3D.steps.x : (scene.rotation.x = tempObject3D.rotation.x, 
         e += 1), Math.abs(tempObject3D.rotation.y - scene.rotation.y) > .05 ? scene.rotation.y += tempObject3D.steps.y : (scene.rotation.y = tempObject3D.rotation.y, 
         e += 1), Math.abs(tempObject3D.rotation.z - scene.rotation.z) > .05 ? scene.rotation.z += tempObject3D.steps.z : (scene.rotation.z = tempObject3D.rotation.z, 
-        e += 1), 3 == e && (tempObject3D = void 0)), renderer.render(scene, camera);
+        e += 1), 3 == e && (tempObject3D = void 0)), raycaster.setFromCamera(mouse, camera), 
+        (intersects = raycaster.intersectObjects([ scene.children[3].joins.children[0] ])).length > 0 ? INTERSECTED != intersects[0].object && (INTERSECTED && INTERSECTED.material.emissive.setHex(INTERSECTED.currentHex), 
+        (INTERSECTED = intersects[0].object).currentHex = INTERSECTED.material.emissive.getHex(), 
+        INTERSECTED.material.emissive.setHex(1118481)) : (INTERSECTED && INTERSECTED.material.emissive.setHex(INTERSECTED.currentHex), 
+        INTERSECTED = null), renderer.render(scene, camera);
     }
-    (renderer = new THREE.WebGLRenderer()).shadowMap.enabled = !0, renderer.shadowMap.type = THREE.PCFSoftShadowMap, 
-    renderer.setSize(500, 500), renderer.setClearColor(15790320), document.getElementById("play-box").appendChild(renderer.domElement), 
+    (renderer = new THREE.WebGLRenderer({
+        antialias: !0
+    })).shadowMap.enabled = !0, renderer.shadowMap.type = THREE.PCFSoftShadowMap, renderer.setSize(500, 500), 
+    renderer.setClearColor(15790320), document.getElementById("play-box").appendChild(renderer.domElement), 
     (controls = new THREE.TrackballControls(camera, renderer.domElement)).rotateSpeed = 1.5, 
     controls.noZoom = !1, controls.noPan = !1;
-    var t = new Stats();
-    document.getElementById("play-box").appendChild(t.dom), buildInputs(), buildScene(2, 4, 4, 15, 3);
-    var n = function() {
-        requestAnimationFrame(n), e(), t.update();
+    var n = new Stats();
+    document.getElementById("play-box").appendChild(n.dom), renderer.domElement.addEventListener("mousemove", e, !1), 
+    buildInputs(), buildScene(2, 4, 4, 15, 3);
+    var r = function() {
+        requestAnimationFrame(r), t(), n.update();
     };
-    n();
+    r();
 }
 
 function buildInputs() {
@@ -46,13 +57,25 @@ function buildScene(e, t, n, r, a) {
         x: e,
         y: 10,
         z: 24
-    }, n), p = new PlankGroup({
+    }, n), l = new PlankGroup({
         x: t,
         y: 10,
         z: 24
     }, n + 1, !0);
-    generateDove(c, p, r, a), positionJoins(c, p), positionPlanks(c, p), scene.add(c), 
-    scene.add(p), turnToFace("left");
+    generateDove(c, l, r, a), positionJoins(c, l), positionPlanks(c, l), scene.add(c), 
+    scene.add(l), new THREE.FontLoader().load("font/Lato_Regular.json", function(e) {
+        new THREE.LineBasicMaterial({
+            color: 16777215,
+            side: THREE.DoubleSide
+        });
+        var t, n = new THREE.MeshBasicMaterial({
+            color: 16777215,
+            transparent: !0,
+            opacity: .8,
+            side: THREE.DoubleSide
+        }), r = a + "cm", o = e.generateShapes(r, .5), i = new THREE.ShapeGeometry(o);
+        (t = new THREE.Mesh(i, n)).position.x = -3, c.joins.children[0].add(t);
+    }), turnToFace("left");
 }
 
 function generateDove(e, t, n, r) {
@@ -60,8 +83,8 @@ function generateDove(e, t, n, r) {
     for (var a = e.plank.geometry.parameters, o = t.plank.geometry.parameters.width, i = getReduction({
         angle: n,
         height: o
-    }), s = r - 2 * i, c = (a.depth - s * e.number) / t.number, p = c - r, l = -a.depth / 2 + c / 2, m = 0; m < e.number + t.number; m++) m % 2 == 0 ? t.addJoin(r + p, s + p, o, a.width, l) : e.addJoin(r, s, o, a.width, l), 
-    l += c / 2 + s / 2;
+    }), s = r - 2 * i, c = (a.depth - s * e.number) / t.number, l = c - r, m = -a.depth / 2 + c / 2, d = 0; d < e.number + t.number; d++) d % 2 == 0 ? t.addJoin(r + l, s + l, o, a.width, m) : e.addJoin(r, s, o, a.width, m), 
+    m += c / 2 + s / 2;
     t.joins.children[0].geometry.vertices[3].z -= i, t.joins.children[0].geometry.vertices[6].z -= i, 
     t.joins.children[t.joins.children.length - 1].geometry.vertices[2].z += i, t.joins.children[t.joins.children.length - 1].geometry.vertices[7].z += i;
 }
@@ -113,14 +136,14 @@ function positionPlanks(e, t) {
 }
 
 function getReduction(e) {
-    if (e.angle > 0 && e.angle < 90) t = Math.PI * e.angle / 180; else {
+    if (e.angle > 0 && e.angle < 90) t = THREE.Math.degToRad(e.angle); else {
         if (!(e.hypot > 1)) throw new Error("Invalid angle or hypothenuse input");
         var t = Math.asin(1 / e.hypot);
     }
     return Math.tan(t) * e.height;
 }
 
-var renderer, tempObject3D, scene = new THREE.Scene(), camera = new THREE.PerspectiveCamera(30, 1, 1, 5e3);
+var renderer, tempObject3D, scene = new THREE.Scene(), raycaster = new THREE.Raycaster(), mouse = new THREE.Vector2(), INTERSECTED, intersects, camera = new THREE.PerspectiveCamera(30, 1, 1, 5e3);
 
 camera.position.x = 0, camera.position.y = 0, camera.position.z = 70;
 
