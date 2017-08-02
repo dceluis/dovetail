@@ -9,7 +9,7 @@ describe('The program', () => {
       expect(buildScene).toBeDefined();
     });
     it('that adds an ambient light', () => {
-      buildScene(4,15,3);
+      buildScene(2,4,4,15,3);
       expect(scene.children[0] instanceof THREE.AmbientLight).toBeTruthy();
     });
     it('that adds a directional light', () => {
@@ -91,7 +91,7 @@ describe('The program', () => {
         });
 
         it('that returns a join', () => {
-          join = plankGroup.buildJoin(10,10,10);
+          join = plankGroup.buildJoin(10,10,10,10);
           expect(join instanceof THREE.Mesh).toBe(true);
           expect(join.geometry instanceof THREE.Geometry).toBe(true);
           expect(join.material instanceof THREE.Material).toBe(true);
