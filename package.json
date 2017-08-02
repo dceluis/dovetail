@@ -20,9 +20,11 @@
   },
   "homepage": "https://github.com/sanchez2210/dovetail#readme",
   "devDependencies": {
+    "codecov": "^2.2.0",
     "jasmine-core": "^2.7.0",
     "karma": "^1.7.0",
     "karma-chrome-launcher": "^2.2.0",
+    "karma-coverage": "^1.1.1",
     "karma-jasmine": "^1.1.0"
   }
 }
