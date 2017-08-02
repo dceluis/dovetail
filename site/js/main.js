@@ -1,7 +1,7 @@
 function colorizeGeometry(e, t) {
     for (var n = 0; n < e.faces.length; n += 2) {
-        var a = t ? 6396369 : 13736289;
-        e.faces[n].color.setHex(a), e.faces[n + 1].color.setHex(a);
+        var r = t ? 6396369 : 13736289;
+        e.faces[n].color.setHex(r), e.faces[n + 1].color.setHex(r);
     }
     return e;
 }
@@ -36,33 +36,34 @@ function buildInputs() {
 
 function buildScene(e, t, n) {
     scene = new THREE.Scene();
-    var a = new THREE.AmbientLight(4210752);
-    scene.add(a);
-    var r = new THREE.DirectionalLight(16777215, 1);
-    r.position.set(-10, 9, 6), r.castShadow = !0, scene.add(r);
+    var r = new THREE.AmbientLight(4210752);
+    scene.add(r);
+    var a = new THREE.DirectionalLight(16777215, 1);
+    a.position.set(-10, 9, 6), a.castShadow = !0, scene.add(a);
     var o = new THREE.DirectionalLight(16777215, .6);
     o.position.set(10, -6, -7), o.castShadow = !0, scene.add(o);
     var i = new PlankGroup({
         x: 2,
         y: 10,
         z: 24
-    }), s = new PlankGroup({
+    }, e), s = new PlankGroup({
         x: 4,
         y: 10,
         z: 24
-    }, !0);
-    generateDove(i, e + 0, t, n), generateDove(s, e + 1, t, n), positionJoins(i), positionJoins(s), 
-    positionPlanks(i, s), scene.add(i), scene.add(s), turnToFace("left");
+    }, e + 1, !0);
+    generateDove(i, s, t, n), positionJoins(i), positionJoins(s), positionPlanks(i, s), 
+    scene.add(i), scene.add(s), turnToFace("left");
 }
 
-function generateDove(e, t, n, a) {
-    for (var r = e.plank.geometry.parameters, o = r.width * (e.alternative ? 1 : 2), i = a || o, s = i - 2 * getReduction({
+function generateDove(e, t, n, r) {
+    if (e.number + 1 != t.number || e.alternative || !t.alternative) throw new Error("Invalid arguments");
+    for (var a = e.plank.geometry.parameters, o = t.plank.geometry.parameters.width, i = getReduction({
         angle: n,
         height: o
-    }), c = i - s, l = (r.depth - s * (t - (e.alternative ? 1 : 0))) / (t + (e.alternative ? 0 : 1)), p = i - l, d = -r.depth / 2 + l / 2 + (l + s) * (e.alternative ? 0 : .5), m = 0; m < t; m++) e.alternative ? e.addJoin(i - p, s - p, o, d) : e.addJoin(i, s, o, d), 
-    d += l + s;
-    e.alternative && (e.joins.children[0].geometry.vertices[3].z -= c / 2, e.joins.children[0].geometry.vertices[6].z -= c / 2, 
-    e.joins.children[e.joins.children.length - 1].geometry.vertices[2].z += c / 2, e.joins.children[e.joins.children.length - 1].geometry.vertices[7].z += c / 2);
+    }), s = r - 2 * i, c = (a.depth - s * e.number) / t.number, l = c - r, p = -a.depth / 2 + c / 2, m = 0; m < e.number + t.number; m++) m % 2 == 0 ? t.addJoin(r + l, s + l, o, p) : e.addJoin(r, s, o, p), 
+    p += c / 2 + s / 2;
+    t.joins.children[0].geometry.vertices[3].z -= i, t.joins.children[0].geometry.vertices[6].z -= i, 
+    t.joins.children[t.joins.children.length - 1].geometry.vertices[2].z += i, t.joins.children[t.joins.children.length - 1].geometry.vertices[7].z += i;
 }
 
 function turnToFace(e) {
@@ -123,21 +124,21 @@ var renderer, tempObject3D, scene = new THREE.Scene(), camera = new THREE.Perspe
 
 camera.position.x = 0, camera.position.y = 0, camera.position.z = 70;
 
-var controls, PlankGroup = function(e, t) {
+var controls, PlankGroup = function(e, t, n) {
     THREE.Object3D.call(this), this.type = "Group", this.plank = new THREE.Mesh(), this.lines = new THREE.WireframeGeometry(), 
-    this.joins = new THREE.Group(), this.material = new THREE.MeshLambertMaterial({
+    this.joins = new THREE.Group(), this.number = t, this.material = new THREE.MeshLambertMaterial({
         vertexColors: THREE.FaceColors,
         overdraw: .5,
         transparent: !1,
         opacity: 1
-    }), this.geometry = colorizeGeometry(new THREE.BoxGeometry(e.x, e.y, e.z), t), this.plank = new THREE.Mesh(this.geometry, this.material), 
+    }), this.geometry = colorizeGeometry(new THREE.BoxGeometry(e.x, e.y, e.z), n), this.plank = new THREE.Mesh(this.geometry, this.material), 
     this.plank.castShadow = !0, this.lines = new THREE.LineSegments(new THREE.WireframeGeometry(this.geometry)), 
-    this.lines.material.opacity = .2, this.lines.material.transparent = !0, this.alternative = !!t, 
-    this.add(this.plank), this.add(this.joins), this.addJoin = function(e, t, n, a) {
-        var r = this.buildJoin(e, t, n);
-        return r.position.z = a, this.joins.add(r), r;
+    this.lines.material.opacity = .2, this.lines.material.transparent = !0, this.alternative = !!n, 
+    this.add(this.plank), this.add(this.joins), this.addJoin = function(e, t, n, r) {
+        var a = this.buildJoin(e, t, n);
+        return a.position.z = r, this.joins.add(a), a;
     }, this.buildJoin = function(e, t, n) {
-        var a = this.plank.geometry.parameters.width * (this.alternative ? 1 : 2), r = this.material, o = new THREE.BoxGeometry(a / 2, n, e), i = (e - t) / 2;
+        var r = this.plank.geometry.parameters.width * (this.alternative ? 1 : 2), a = this.material, o = new THREE.BoxGeometry(r / 2, n, e), i = (e - t) / 2;
         return (o = colorizeGeometry(o, this.alternative)).vertices[2].add({
             x: 0,
             y: 0,
@@ -154,7 +155,7 @@ var controls, PlankGroup = function(e, t) {
             x: 0,
             y: 0,
             z: +i
-        }), new THREE.Mesh(o, r);
+        }), new THREE.Mesh(o, a);
     };
 };
 

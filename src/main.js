@@ -11,13 +11,14 @@ var camera = new THREE.PerspectiveCamera(30, 1, 1, 5000);
 
 var controls;
 
-var PlankGroup = function PlankGroup(options,alternative) {
+var PlankGroup = function PlankGroup(options,number,alternative) {
   THREE.Object3D.call ( this );
   this.type = 'Group';
 
   this.plank = new THREE.Mesh();
   this.lines = new THREE.WireframeGeometry();
   this.joins = new THREE.Group();
+  this.number = number;
 
   this.material = new THREE.MeshLambertMaterial({
     vertexColors: THREE.FaceColors,
@@ -162,7 +163,6 @@ function buildInputs(){
 function buildScene(number,angle,top){
   scene = new THREE.Scene();
 
-
   var ambient = new THREE.AmbientLight( 0x404040 ); // soft white light
   scene.add( ambient );
 
@@ -176,12 +176,10 @@ function buildScene(number,angle,top){
   light2.castShadow = true;
   scene.add( light2 );
 
-  var plank1 = new PlankGroup({x: 2, y: 10, z: 24});
-  var plank2 = new PlankGroup({x: 4, y: 10, z: 24},true);
+  var plank1 = new PlankGroup({x: 2, y: 10, z: 24},number);
+  var plank2 = new PlankGroup({x: 4, y: 10, z: 24},number+1,true);
 
-  generateDove(plank1,number+0,angle,top);
-  generateDove(plank2,number+1,angle,top);
-
+  generateDove(plank1,plank2,angle,top);
   positionJoins(plank1);
   positionJoins(plank2);
   positionPlanks(plank1,plank2);
@@ -192,38 +190,38 @@ function buildScene(number,angle,top){
   turnToFace("left");
 }
 
-function generateDove(plank,number,angle,top){
-  var plankParams = plank.plank.geometry.parameters;
+function generateDove(planka,plankb,angle,top){
+  if((planka.number+1 != plankb.number) || planka.alternative || !plankb.alternative)
+    throw new Error("Invalid arguments");
 
-  var joinHeight = plankParams.width*(plank.alternative ? 1 : 2);
-  var joinTop = top || joinHeight;
-  var joinBot = joinTop - getReduction({ angle: angle, height: joinHeight })*2;
-  var diff1 = joinTop - joinBot;
+  var plankaParams = planka.plank.geometry.parameters;
+  var plankbParams = plankb.plank.geometry.parameters;
 
-  var freeSpace = plankParams.depth - ( joinBot * (number - (plank.alternative ? 1 : 0)) );
+  var joinHeight = plankbParams.width;
 
-  var altJoinTop = freeSpace/(number + (plank.alternative ? 0 : 1) );
-  var diff = joinTop - altJoinTop;
+  var reduction = getReduction({ angle: angle, height: joinHeight });
 
-  var array = [];
+  var bot = top - reduction*2;
+  var freeSpace = plankaParams.depth - ( bot * (planka.number) );
 
-  var nextPosition = - plankParams.depth/2 + (altJoinTop/2) + (altJoinTop + joinBot)*(plank.alternative ? 0 : 0.5);
+  var altJoinTop = freeSpace/plankb.number;
+  var diff = altJoinTop - top;
 
-  for( var i = 0 ; i  < number ; i++ ){
-    if(plank.alternative)
-      plank.addJoin(joinTop-diff,joinBot-diff,joinHeight,nextPosition);
+  var nextPosition = - plankaParams.depth/2 + (altJoinTop/2);
+
+  for( var i = 0 ; i  < planka.number + plankb.number ; i++ ){
+    if(i%2 === 0) 
+      plankb.addJoin(top + diff,bot + diff,joinHeight,nextPosition);
     else
-      plank.addJoin(joinTop,joinBot,joinHeight,nextPosition);
+      planka.addJoin(top,bot,joinHeight,nextPosition);
 
-    nextPosition += altJoinTop + joinBot;
+    nextPosition += altJoinTop/2 + bot/2;
   }
 
-  if(plank.alternative){
-    plank.joins.children[0].geometry.vertices[3].z -= diff1/2;
-    plank.joins.children[0].geometry.vertices[6].z -= diff1/2;
-    plank.joins.children[plank.joins.children.length-1].geometry.vertices[2].z += diff1/2;
-    plank.joins.children[plank.joins.children.length-1].geometry.vertices[7].z += diff1/2;
-  }
+  plankb.joins.children[0].geometry.vertices[3].z -= reduction;
+  plankb.joins.children[0].geometry.vertices[6].z -= reduction;
+  plankb.joins.children[plankb.joins.children.length-1].geometry.vertices[2].z += reduction;
+  plankb.joins.children[plankb.joins.children.length-1].geometry.vertices[7].z += reduction;
 }
 
 function turnToFace(face){
@@ -272,7 +270,7 @@ function positionJoins(plank){
 function positionPlanks(planka,plankb){
   planka.translateX(-(plankb.plank.geometry.parameters.height + planka.plank.geometry.parameters.width)/2);
   plankb.rotateZ(Math.PI/2);
-  plankb.translateX((planka.plank.geometry.parameters.height + plankb.plank.geometry.parameters.width)/2);
+  plankb.translateX( (planka.plank.geometry.parameters.height + plankb.plank.geometry.parameters.width)/2);
 }
 
 function getReduction(options){
