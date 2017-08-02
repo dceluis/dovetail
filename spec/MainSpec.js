@@ -4,8 +4,17 @@ describe('The program', () => {
     expect(init).toBeDefined();
   });
 
-  it('has a buildScene() function', () => {
-    expect(buildScene).toBeDefined();
+  describe('has a buildScene() function', () => {
+    it('defined', () => {
+      expect(buildScene).toBeDefined();
+    });
+    it('that adds an ambient light', () => {
+      buildScene(4,15,3);
+      expect(scene.children[0] instanceof THREE.AmbientLight).toBeTruthy();
+    });
+    it('that adds a directional light', () => {
+      expect(scene.children[1] instanceof THREE.DirectionalLight).toBeTruthy();
+    });
   });
 
   it('has a generateDove() function', () => {
