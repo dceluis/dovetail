@@ -43,7 +43,7 @@ body{
   width: 32em;
   display: flex;
   flex-flow: row wrap;
-  justify-content: space-around;
+  justify-content: space-between;
   margin: 0 auto;
   background-color: hsl(240,90,98);
   padding: 0.4em;
@@ -65,10 +65,15 @@ body{
     line-height: inherit;
     flex-grow: 1;
   }
-
   button{
+    -webkit-appearance: none;
+    -moz-appearance: none;
     width: 5em;
     align-self: center;
+    cursor: pointer;
+    &[disabled] {
+      cursor: not-allowed;
+    }
   }
 }
 
