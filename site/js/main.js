@@ -1,7 +1,7 @@
 function colorizeGeometry(e, t) {
     for (var n = 0; n < e.faces.length; n += 2) {
-        var r = t ? 6396369 : 13736289;
-        e.faces[n].color.setHex(r), e.faces[n + 1].color.setHex(r);
+        var a = t ? 6396369 : 13736289;
+        e.faces[n].color.setHex(a), e.faces[n + 1].color.setHex(a);
     }
     return e;
 }
@@ -31,39 +31,53 @@ function init() {
     controls.noZoom = !1, controls.noPan = !1;
     var n = new Stats();
     document.getElementById("play-box").appendChild(n.dom), renderer.domElement.addEventListener("mousemove", e, !1), 
-    buildInputs(), buildScene(2, 4, 4, 15, 3);
-    var r = function() {
-        requestAnimationFrame(r), t(), n.update();
+    buildInputs(), buildScene(30, 2, 4, 4, 15, 3);
+    var a = function() {
+        requestAnimationFrame(a), t(), n.update();
     };
-    r();
+    a();
 }
 
 function buildInputs() {
-    document.getElementById("create").addEventListener("click", function() {
-        var e = parseInt(document.getElementById("number").value), t = parseInt(document.getElementById("angle").value), n = parseFloat(document.getElementById("length").value), r = parseFloat(document.getElementById("aWidth").value), a = parseFloat(document.getElementById("bWidth").value);
-        buildScene(r || 2, a || 4, e || 4, t || 15, n || 3);
+    function e() {
+        return parseInt(n.value) * parseFloat(r.value) + 2 * getReduction({
+            angle: parseInt(a.value),
+            height: parseFloat(s.value)
+        });
+    }
+    var t = document.getElementById("create"), n = document.getElementById("number"), a = document.getElementById("angle"), r = document.getElementById("jLength"), o = document.getElementById("length"), i = document.getElementById("aWidth"), s = document.getElementById("bWidth");
+    t.addEventListener("click", function() {
+        var e = parseInt(n.value), t = parseInt(a.value), c = parseFloat(r.value), l = parseFloat(o.value), d = parseFloat(i.value), m = parseFloat(s.value);
+        buildScene(l || 30, d || 2, m || 4, e || 4, t || 15, c || 3);
+    }), document.getElementById("params").addEventListener("input", function(n) {
+        n.stopPropagation(), "number" == n.target.type && (console.log(e()), parseFloat(o.value) < e() ? (console.log("disabled length"), 
+        t.setAttribute("disabled", "disabled")) : getReduction({
+            angle: parseInt(a.value),
+            height: parseFloat(s.value)
+        }) > parseFloat(r.value) / 2 ? (console.log("disabled reduction"), t.setAttribute("disabled", "disabled")) : (console.log("enabled"), 
+        t.removeAttribute("disabled")));
     });
 }
 
-function buildScene(e, t, n, r, a) {
+function buildScene(e, t, n, a, r, o) {
     scene = new THREE.Scene();
-    var o = new THREE.AmbientLight(4210752);
-    scene.add(o);
-    var i = new THREE.DirectionalLight(16777215, 1);
-    i.position.set(-10, 9, 6), i.castShadow = !0, scene.add(i);
-    var s = new THREE.DirectionalLight(16777215, .6);
-    s.position.set(10, -6, -7), s.castShadow = !0, scene.add(s);
-    var c = new PlankGroup({
-        x: e,
-        y: 10,
-        z: 24
-    }, n), l = new PlankGroup({
+    var i = new THREE.AmbientLight(4210752);
+    scene.add(i);
+    var s = new THREE.DirectionalLight(16777215, 1);
+    s.position.set(-10, 9, 6), s.castShadow = !0, scene.add(s);
+    var c = new THREE.DirectionalLight(16777215, .6);
+    c.position.set(10, -6, -7), c.castShadow = !0, scene.add(c);
+    var l = new PlankGroup({
         x: t,
         y: 10,
-        z: 24
-    }, n + 1, !0);
-    generateDove(c, l, r, a), positionJoins(c, l), positionPlanks(c, l), scene.add(c), 
-    scene.add(l), new THREE.FontLoader().load("font/Lato_Regular.json", function(e) {
+        z: e
+    }, a), d = new PlankGroup({
+        x: n,
+        y: 10,
+        z: e
+    }, a + 1, !0);
+    generateDove(l, d, r, o), positionJoins(l, d), positionPlanks(l, d), scene.add(l), 
+    scene.add(d), new THREE.FontLoader().load("font/Lato_Regular.json", function(e) {
         new THREE.LineBasicMaterial({
             color: 16777215,
             side: THREE.DoubleSide
@@ -73,18 +87,18 @@ function buildScene(e, t, n, r, a) {
             transparent: !0,
             opacity: .8,
             side: THREE.DoubleSide
-        }), r = a + "cm", o = e.generateShapes(r, .5), i = new THREE.ShapeGeometry(o);
-        (t = new THREE.Mesh(i, n)).position.x = -3, c.joins.children[0].add(t);
+        }), a = o + "cm", r = e.generateShapes(a, .5), i = new THREE.ShapeGeometry(r);
+        (t = new THREE.Mesh(i, n)).position.x = -3, l.joins.children[0].add(t);
     }), turnToFace("left");
 }
 
-function generateDove(e, t, n, r) {
+function generateDove(e, t, n, a) {
     if (e.number + 1 != t.number || e.alternative || !t.alternative) throw new Error("Invalid arguments");
-    for (var a = e.plank.geometry.parameters, o = t.plank.geometry.parameters.width, i = getReduction({
+    for (var r = e.plank.geometry.parameters, o = t.plank.geometry.parameters.width, i = getReduction({
         angle: n,
         height: o
-    }), s = r - 2 * i, c = (a.depth - s * e.number) / t.number, l = c - r, m = -a.depth / 2 + c / 2, d = 0; d < e.number + t.number; d++) d % 2 == 0 ? t.addJoin(r + l, s + l, o, a.width, m) : e.addJoin(r, s, o, a.width, m), 
-    m += c / 2 + s / 2;
+    }), s = a - 2 * i, c = (r.depth - s * e.number) / t.number, l = c - a, d = -r.depth / 2 + c / 2, m = 0; m < e.number + t.number; m++) m % 2 == 0 ? t.addJoin(a + l, s + l, o, r.width, d) : e.addJoin(a, s, o, r.width, d), 
+    d += c / 2 + s / 2;
     t.joins.children[0].geometry.vertices[3].z -= i, t.joins.children[0].geometry.vertices[6].z -= i, 
     t.joins.children[t.joins.children.length - 1].geometry.vertices[2].z += i, t.joins.children[t.joins.children.length - 1].geometry.vertices[7].z += i;
 }
@@ -126,8 +140,8 @@ function turnToFace(e) {
 }
 
 function positionJoins(e, t) {
-    var n = e.plank.geometry.parameters, r = t.plank.geometry.parameters;
-    t.joins.rotateZ(Math.PI / 2), e.joins.position.y = n.height / 2 + r.width / 2, t.joins.position.y = r.height / 2 + n.width / 2;
+    var n = e.plank.geometry.parameters, a = t.plank.geometry.parameters;
+    t.joins.rotateZ(Math.PI / 2), e.joins.position.y = n.height / 2 + a.width / 2, t.joins.position.y = a.height / 2 + n.width / 2;
 }
 
 function positionPlanks(e, t) {
@@ -157,11 +171,11 @@ var controls, PlankGroup = function(e, t, n) {
     }), this.geometry = colorizeGeometry(new THREE.BoxGeometry(e.x, e.y, e.z), n), this.plank = new THREE.Mesh(this.geometry, this.material), 
     this.plank.castShadow = !0, this.lines = new THREE.LineSegments(new THREE.WireframeGeometry(this.geometry)), 
     this.lines.material.opacity = .2, this.lines.material.transparent = !0, this.alternative = !!n, 
-    this.add(this.plank), this.add(this.joins), this.addJoin = function(e, t, n, r, a) {
-        var o = this.buildJoin(e, t, n, r);
-        return o.position.z = a, this.joins.add(o), o;
-    }, this.buildJoin = function(e, t, n, r) {
-        var a = this.material, o = new THREE.BoxGeometry(r, n, e), i = (e - t) / 2;
+    this.add(this.plank), this.add(this.joins), this.addJoin = function(e, t, n, a, r) {
+        var o = this.buildJoin(e, t, n, a);
+        return o.position.z = r, this.joins.add(o), o;
+    }, this.buildJoin = function(e, t, n, a) {
+        var r = this.material, o = new THREE.BoxGeometry(a, n, e), i = (e - t) / 2;
         return (o = colorizeGeometry(o, this.alternative)).vertices[2].add({
             x: 0,
             y: 0,
@@ -178,7 +192,7 @@ var controls, PlankGroup = function(e, t, n) {
             x: 0,
             y: 0,
             z: +i
-        }), new THREE.Mesh(o, a);
+        }), new THREE.Mesh(o, r);
     };
 };
 
