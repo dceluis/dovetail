@@ -114,7 +114,7 @@ function init () {
 
   buildInputs();
 
-  buildScene(2,4,4,15,3);
+  buildScene(30,2,4,4,15,3);
 
   var animate = function() {
     requestAnimationFrame(animate);
@@ -177,17 +177,50 @@ function init () {
 
 function buildInputs(){
   var createButton = document.getElementById("create");
+  var numberInput  = document.getElementById("number");
+  var angleInput   = document.getElementById("angle");
+  var jLengthInput = document.getElementById("jLength");
+  var lengthInput  = document.getElementById("length");
+  var aWidthInput  = document.getElementById("aWidth");
+  var bWidthInput  = document.getElementById("bWidth");
+
   createButton.addEventListener("click",function(){
-    var number = parseInt(document.getElementById("number").value);
-    var angle  = parseInt(document.getElementById("angle").value);
-    var length = parseFloat(document.getElementById("length").value);
-    var aWidth = parseFloat(document.getElementById("aWidth").value);
-    var bWidth = parseFloat(document.getElementById("bWidth").value);
-    buildScene(aWidth || 2, bWidth || 4,number || 4 ,angle || 15 ,length || 3);
+    var number  = parseInt(numberInput.value);
+    var angle   = parseInt(angleInput.value);
+    var jLength = parseFloat(jLengthInput.value);
+    var length  = parseFloat(lengthInput.value);
+    var aWidth  = parseFloat(aWidthInput.value);
+    var bWidth  = parseFloat(bWidthInput.value);
+    buildScene(length || 30, aWidth || 2, bWidth || 4,number || 4 ,angle || 15 ,jLength || 3);
   });
+
+  document.getElementById("params").addEventListener("input",
+    function validateInputs(e){
+      e.stopPropagation();
+      if(e.target.type == "number"){
+        console.log(minLength());
+        if ( parseFloat(lengthInput.value) < minLength() ){
+          console.log("disabled length");
+          createButton.setAttribute("disabled", "disabled");
+        }
+        else if ( getReduction({ angle: parseInt(angleInput.value), height: parseFloat(bWidthInput.value) }) > (parseFloat(jLengthInput.value) / 2) ) {
+          console.log("disabled reduction");
+          createButton.setAttribute("disabled", "disabled");
+        }
+        else {
+          console.log("enabled");
+          createButton.removeAttribute("disabled");
+        }
+      }
+    }
+  );
+
+  function minLength() {
+    return parseInt(numberInput.value) * parseFloat(jLengthInput.value) + getReduction({ angle: parseInt(angleInput.value), height: parseFloat(bWidthInput.value) }) * 2 ;
+  }
 }
 
-function buildScene(aWidth,bWidth,number,angle,top){
+function buildScene(length,aWidth,bWidth,number,angle,top){
   scene = new THREE.Scene();
 
   var ambient = new THREE.AmbientLight( 0x404040 ); // soft white light
@@ -203,8 +236,8 @@ function buildScene(aWidth,bWidth,number,angle,top){
   light2.castShadow = true;
   scene.add( light2 );
 
-  var planka = new PlankGroup({x: aWidth, y: 10, z: 24},number);
-  var plankb = new PlankGroup({x: bWidth, y: 10, z: 24},number+1,true);
+  var planka = new PlankGroup({x: aWidth, y: 10, z: length},number);
+  var plankb = new PlankGroup({x: bWidth, y: 10, z: length},number+1,true);
 
   generateDove(planka,plankb,angle,top);
   positionJoins(planka,plankb);

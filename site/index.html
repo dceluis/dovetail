@@ -47,6 +47,13 @@
               <button type="button" class="right" onclick="turnToFace('back')">Back</button> -->
             </div>
             <div id="params">
+                <div class="form-group">
+                    <label for="length">Total Length</label>
+                    <div class="input-group">
+                      <input id="length" type="number" value="20" placeholder="3" step="0.5" min="10" max="30">
+                      <div class="addon">cm</div>
+                    </div>
+                  </div>
               <div class="form-group">
                 <label for="aWidth">Plank 1 width</label>
                 <div class="input-group">
@@ -82,9 +89,9 @@
                 </div>
               </div>
               <div class="form-group">
-                <label for="length">Length</label>
+                <label for="jLength">Joint Length</label>
                 <div class="input-group">
-                  <input id="length" type="number" value="3" placeholder="3" step="0.1">
+                  <input id="jLength" type="number" value="3" placeholder="3" step="0.1">
                   <div class="addon">cm</div>
                 </div>
               </div>
