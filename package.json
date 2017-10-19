@@ -1,31 +1,42 @@
 {
-  "name": "dovetail",
+  "name": "polymer-dovetail",
   "version": "1.0.0",
-  "description": "3D helper for Dovetail joints",
+  "description": "A tool for building Dovetail Joints",
   "main": "index.js",
-  "directories": {
-    "lib": "lib"
+  "repository": "https://github.com/sanchez2210/dovetail",
+  "author": "Luis Felipe Sanchez",
+  "license": "MIT",
+  "private": true,
+  "dependencies": {
+    "@polymer/polymer": "^3.0.0-pre.1",
+    "@webcomponents/webcomponentsjs": "^1.0.14",
+    "lodash": "^4.17.4",
+    "stats.js": "github:mrdoob/stats.js",
+    "three": "^0.87.1",
+    "three-trackballcontrols": "0.0.6"
+  },
+  "devDependencies": {
+    "codecov": "^2.3.1",
+    "css-loader": "^0.28.7",
+    "file-loader": "^1.1.5",
+    "image-webpack-loader": "^3.4.2",
+    "jasmine-core": "^2.8.0",
+    "karma": "^1.7.1",
+    "karma-coverage": "^1.1.1",
+    "karma-jasmine": "^1.1.0",
+    "karma-webpack": "^2.0.5",
+    "node-sass": "^4.5.3",
+    "phantomjs-prebuilt": "^2.1.15",
+    "sass-loader": "^6.0.6",
+    "style-loader": "^0.19.0",
+    "webpack": "^3.8.1",
+    "webpack-dev-server": "^2.9.2"
   },
   "scripts": {
-    "test": "node_modules/karma/bin/karma start karma.conf.js --single-run",
+    "webpack:dev-server": "webpack-dev-server --config webpack.config.js",
+    "webpack:dev": "webpack --config webpack.config.js",
+    "webpack": "webpack -p --config webpack.config.js",
+    "test": "karma start karma.conf.js --single-run",
     "codecov": "codecov"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/sanchez2210/dovetail.git"
-  },
-  "author": "Luis Felipe Sanchez",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/sanchez2210/dovetail/issues"
-  },
-  "homepage": "https://github.com/sanchez2210/dovetail#readme",
-  "devDependencies": {
-    "codecov": "^2.2.0",
-    "jasmine-core": "^2.7.0",
-    "karma": "^1.7.0",
-    "karma-chrome-launcher": "^2.2.0",
-    "karma-coverage": "^1.1.1",
-    "karma-jasmine": "^1.1.0"
   }
 }

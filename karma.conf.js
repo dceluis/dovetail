@@ -1,5 +1,7 @@
 // Karma configuration
-// Generated on Tue Aug 01 2017 18:40:16 GMT-0500 (PET)
+// Generated on Wed Oct 18 2017 04:29:58 GMT-0500 (-05)
+
+var webpackConfig = require('./webpack.config.js');
 
 module.exports = function(config) {
   config.set({
@@ -15,7 +17,8 @@ module.exports = function(config) {
 
     // list of files / patterns to load in the browser
     files: [
-      'site/lib/three.js','site/lib/*.js','spec/MainSpec.js','src/main.js'
+      'src/**/*.js',
+      'test/**/*Spec.js'
     ],
 
 
@@ -27,7 +30,8 @@ module.exports = function(config) {
     // preprocess matching files before serving them to the browser
     // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
     preprocessors: {
-      'src/main.js': ['coverage']
+      'src/**/*.js': ['coverage'],
+      'test/**/*Spec.js': ['webpack']
     },
 
 
@@ -36,12 +40,11 @@ module.exports = function(config) {
     // available reporters: https://npmjs.org/browse/keyword/karma-reporter
     reporters: ['progress','coverage'],
 
-
     coverageReporter: {
-        reporters: [
-            // generates ./coverage/lcov.info
-            {type:'lcovonly', subdir: '.'}
-        ]
+      reporters: [
+          // generates ./coverage/lcov.info
+          {type:'lcovonly', subdir: '.'}
+      ]
     },
 
     // web server port
@@ -63,7 +66,7 @@ module.exports = function(config) {
 
     // start these browsers
     // available browser launchers: https://npmjs.org/browse/keyword/karma-launcher
-    browsers: ['Chrome'],
+    browsers: [],
 
 
     // Continuous Integration mode
@@ -72,6 +75,8 @@ module.exports = function(config) {
 
     // Concurrency level
     // how many browser should be started simultaneous
-    concurrency: Infinity
+    concurrency: Infinity,
+
+    webpack: webpackConfig
   })
 }
