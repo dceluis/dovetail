@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Test</title>
+</head>
+<body>
+  <script src="bundle.js"></script>
+  <header>
+    <div class="inner">
+      <h1> Dovetail Sandbox </h1>
+      <h2>We should add some descriptive subtitle here, very short like this</h2>
+      <a  class="button"><small>Small link to</small> Dovetail?</a>
+    </div>
+  </header>
+  
+  <div id="content-wrapper">
+    <div class="inner clearfix">
+      <section id="main-content">
+        <h1>3dbox</h1>
+        <div id="play-box">
+          <div id="control_panel" class="play-box_controls">
+            <!-- <button type="button" class="left"  onclick="turnToFace('top')">Top</button>
+              <button type="button" class="right" onclick="turnToFace('bottom')">Bottom</button>
+              <button type="button" class="left"  onclick="turnToFace('left')">Left</button>
+            <button type="button" class="right" onclick="turnToFace('right')">Right</button>
+            <button type="button" class="left"  onclick="turnToFace('front')">Front</button>
+            <button type="button" class="right" onclick="turnToFace('back')">Back</button> -->
+          </div>
+          <div id="params">
+            <div class="form-group">
+              <label for="length">Total Length</label>
+              <div class="input-group">
+                <three-input></three-input>
+                <input id="length" type="number" value="20" placeholder="3" step="0.5" min="10" max="30">
+                <div class="addon">cm</div>
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="aWidth">Plank 1 width</label>
+              <div class="input-group">
+                <three-input></three-input>
+                <input id="aWidth" type="number" value="2" placeholder="3" step="0.1" min="1" max="9">
+                <div class="addon">cm</div>
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="bWidth">Plank 2 width</label>
+              <div class="input-group">
+                <three-input></three-input>
+                <input id="bWidth" type="number" value="4" placeholder="3" step="0.1" min="1" max="9">
+                <div class="addon">cm</div>
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="number">Joints</label>
+              <div class="input-group">
+                <three-input></three-input>
+                <input id="number" type="number" value="4" placeholder="4" min="1" max="10">
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="angle">Angle</label>
+              <div class="input-group">
+                <three-input></three-input>
+                <input id="angle" type="number" value="15" placeholder="15" max="25" min="1">
+                <div class="addon">°</div>
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="ratio">Ratio</label>
+              <div class="input-group">
+                <three-input></three-input>
+                <div class="addon">1 /</div>
+                <input id="ratio" type="number" value="6" placeholder="6" max="9" min="3">
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="jLength">Joint Length</label>
+              <div class="input-group">
+                <three-input></three-input>
+                <input id="jLength" type="number" value="3" placeholder="3" step="0.1">
+                <div class="addon">cm</div>
+              </div>
+            </div>
+            <button id="create" type="button">Create</button>
+          </div>
+        </div>
+      </section>
+      
+      <aside id="sidebar">
+        <a href="https://github.com/pietromenna/jekyll-architect-theme/archive/master.zip" class="button">
+          <small>Save</small>
+          as .jpg
+        </a>
+        
+        <p>Sidebar info, we can explain more how to use the site. <a href="https://pages.github.com">Link</a>.</p>
+        <p>More info, Lorem ipsum dolor sit amet, consectetur adipisicing elit. Doloribus facere totam officiis amet earum dolore, in rerum sequi nisi odit provident, aperiam cupiditate delectus adipisci necessitatibus alias soluta, voluptatum odio.</p>
+        
+        <p class="repo-owner"> Brought to you by <a href="#">Luis S.</a> and <a href="https://www.dany.com">Dany Nadeau</a>.</p>
+      </aside>
+    </div>
+  </div>
+</body>
+</html>
